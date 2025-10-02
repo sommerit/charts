@@ -1,0 +1,15 @@
+displayName: "%%CHART_NAME%%"
+name: "%%CHART_NAME%%"
+version: "0.1.0"
+description: "%%DESCRIPTION%%"
+keywords:
+  - kubernetes
+  - helm
+links:
+  - name: Source
+    url: https://github.com/sommerit/charts/tree/main/sommerit/%%CHART_NAME%%
+  - name: Helm Chart
+    url: https://artifacthub.io/packages/helm/sommerit/%%CHART_NAME%%
+maintainers:
+  - name: Sommerit Maintainers
+    email: <maintainer@example.com>

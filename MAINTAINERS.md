@@ -27,6 +27,13 @@ Most charts expose global overrides:
 - Replace badges/links that point to upstream if needed.
 - Keep SPDX/Apache-2.0 headers intact unless you have legal approval to change them.
 
+## Artifact Hub Publishing
+- Register an OCI Helm repository in Artifact Hub: `oci://ghcr.io/sommerit/charts`.
+- Set Content URL to this GitHub repo so Artifact Hub can read `artifacthub-repo.yml` and per-chart `.artifacthub/pkg.yml`.
+- Copy the generated `repositoryID` (UUID) into `artifacthub-repo.yml` and commit.
+- Add repo secrets: `ARTIFACTHUB_WEBHOOK_URL` and `ARTIFACTHUB_WEBHOOK_SECRET` (from Artifact Hub settings) so the refresh workflow can trigger indexing.
+- Ensure each chart has useful metadata; new charts should include `template/CHART_NAME/.artifacthub/pkg.yml` adapted to the chart.
+
 ## PR & Versioning
 - One chart per PR. Bump `version` in `sommerit/<chart>/Chart.yaml` per semver on any change.
 - Sign-off commits with `git commit -s` (DCO).
