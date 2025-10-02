@@ -78,8 +78,8 @@ diagnosticMode:
 ## %%MAIN_CONTAINER/POD_DESCRIPTION%%
 ##
 %%MAIN_OBJECT_BLOCK%%:
-  ## Bitnami %%MAIN_CONTAINER%% image
-  ## ref: https://hub.docker.com/r/bitnami/%%IMAGE_NAME%%/tags/
+  ## Container image
+  ## ref: <image registry tags url>
   ## @param %%MAIN_OBJECT_BLOCK%%.image.registry [default: REGISTRY_NAME] %%MAIN_CONTAINER%% image registry
   ## @param %%MAIN_OBJECT_BLOCK%%.image.repository [default: REPOSITORY_NAME/%%IMAGE_NAME%%] %%MAIN_CONTAINER%% image repository
   ## @skip %%MAIN_OBJECT_BLOCK%%.image.tag %%MAIN_CONTAINER%% image tag (immutable tags are recommended)
@@ -90,7 +90,7 @@ diagnosticMode:
   ##
   image:
     registry: docker.io
-    repository: bitnami/%%IMAGE_NAME%%
+    repository: %%REPOSITORY_NAME%%/%%IMAGE_NAME%%
     tag: %%IMAGE_TAG%%
     digest: ""
     ## Specify a imagePullPolicy
@@ -740,7 +740,7 @@ defaultInitContainers:
     ##
     image:
       registry: docker.io
-      repository: bitnami/os-shell
+      repository: %%REPOSITORY_NAME%%/os-shell
       tag: 12-debian-12-r46
       digest: ""
       pullPolicy: IfNotPresent

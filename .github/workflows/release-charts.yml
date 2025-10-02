@@ -1,0 +1,64 @@
+# Copyright Broadcom, Inc. All Rights Reserved.
+# SPDX-License-Identifier: APACHE-2.0
+
+name: '[CI/CD] Release charts to GHCR'
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'sommerit/**'
+      - '!**.md'
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+        with:
+          fetch-depth: 2
+
+      - id: detect
+        name: Detect changed chart
+        run: |
+          files_changed="$(git show --pretty="" --name-only)"
+          charts_dirs_changed="$(echo "$files_changed" | xargs dirname | grep -o "sommerit/[^/]*" | sort | uniq || true)"
+          num_charts_changed="$(echo "$charts_dirs_changed" | grep -c "sommerit" || true)"
+          if [[ "$num_charts_changed" -ne 1 ]]; then
+            echo "Only single-chart releases are supported (found: $num_charts_changed)"
+            exit 0
+          fi
+          chart_name=$(echo "$charts_dirs_changed" | sed "s|sommerit/||g")
+          echo "chart=${chart_name}" >> $GITHUB_OUTPUT
+
+      - name: Setup Helm
+        if: steps.detect.outputs.chart != ''
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.14.2
+
+      - name: Login to GHCR
+        if: steps.detect.outputs.chart != ''
+        run: echo "${{ github.token }}" | helm registry login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      - name: Package chart
+        if: steps.detect.outputs.chart != ''
+        env:
+          CHART: ${{ steps.detect.outputs.chart }}
+        run: |
+          helm dependency update sommerit/${CHART}
+          mkdir -p dist
+          helm package sommerit/${CHART} -d dist
+
+      - name: Push to GHCR
+        if: steps.detect.outputs.chart != ''
+        env:
+          CHART: ${{ steps.detect.outputs.chart }}
+        run: |
+          version=$(grep -E '^version:' sommerit/${CHART}/Chart.yaml | awk '{print $2}')
+          helm push dist/${CHART}-${version}.tgz oci://ghcr.io/sommerit/charts
