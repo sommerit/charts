@@ -1,0 +1,23 @@
+# Artifact Hub repository metadata (register this repo in Artifact Hub as an OCI Helm repository)
+# 1) Create the repository in Artifact Hub pointing to: oci://ghcr.io/sommerit/charts
+# 2) Copy the generated repositoryID below (UUID) and set owners.
+# 3) Optionally, set the webhook in Artifact Hub and add its URL/secret as repo secrets
+#    ARTIFACTHUB_WEBHOOK_URL and ARTIFACTHUB_WEBHOOK_SECRET for automatic refresh.
+
+repositoryID: "<SET-YOUR-ARTIFACTHUB-REPOSITORY-ID>"
+owners:
+  - name: sommerit maintainers
+    email: "<maintainer@example.com>"
+displayName: "Sommerit Helm Charts"
+description: "Community-maintained Helm charts published to GHCR."
+homeURL: "https://github.com/sommerit/charts"
+license: "Apache-2.0"
+keywords:
+  - kubernetes
+  - helm
+  - charts
+# ignore: can be used to exclude packages or versions from being indexed
+# ignore:
+#   - name: example
+#     versions:
+#       - ">=0.0.0 <0.1.0"

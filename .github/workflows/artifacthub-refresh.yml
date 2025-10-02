@@ -1,0 +1,25 @@
+name: '[CI/CD] Artifact Hub refresh'
+on:
+  workflow_run:
+    workflows: ['[CI/CD] Release charts to GHCR']
+    types: [completed]
+
+jobs:
+  refresh:
+    name: Trigger Artifact Hub refresh
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call Artifact Hub webhook
+        env:
+          ARTIFACTHUB_WEBHOOK_URL: ${{ secrets.ARTIFACTHUB_WEBHOOK_URL }}
+          ARTIFACTHUB_WEBHOOK_SECRET: ${{ secrets.ARTIFACTHUB_WEBHOOK_SECRET }}
+        run: |
+          if [[ -z "${ARTIFACTHUB_WEBHOOK_URL}" || -z "${ARTIFACTHUB_WEBHOOK_SECRET}" ]]; then
+            echo "::warning:: Artifact Hub webhook not configured. Set ARTIFACTHUB_WEBHOOK_URL and ARTIFACTHUB_WEBHOOK_SECRET secrets."
+            exit 0
+          fi
+          curl -sS -X POST "$ARTIFACTHUB_WEBHOOK_URL" \
+            -H "X-ArtifactHub-Secret: ${ARTIFACTHUB_WEBHOOK_SECRET}" \
+            -H "Content-Type: application/json" \
+            -d '{"event": "refresh"}'
