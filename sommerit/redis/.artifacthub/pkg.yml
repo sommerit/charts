@@ -1,0 +1,16 @@
+displayName: "Redis"
+name: "redis"
+version: "23.0.3"
+description: "Redis in-memory data store with Sentinel/metrics options."
+keywords:
+  - redis
+  - cache
+  - database
+links:
+  - name: Source
+    url: https://github.com/sommerit/charts/tree/main/sommerit/redis
+  - name: Helm Repository
+    url: https://artifacthub.io/packages/helm/sommerit/redis
+maintainers:
+  - name: Sommerit Maintainers
+    email: <maintainer@example.com>

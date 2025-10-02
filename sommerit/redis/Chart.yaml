@@ -26,16 +26,16 @@ dependencies:
 description: Redis(R) is an open source, advanced key-value store. It is often referred
   to as a data structure server since keys can contain strings, hashes, lists, sets
   and sorted sets.
-home: https://bitnami.com
+home: https://github.com/sommerit/charts
 icon: https://dyltqmyl993wv.cloudfront.net/assets/stacks/redis/img/redis-stack-220x234.png
 keywords:
 - redis
 - keyvalue
 - database
 maintainers:
-- name: Broadcom, Inc. All Rights Reserved.
-  url: https://github.com/bitnami/charts
+- name: Sommerit Community Maintainers
+  url: https://github.com/sommerit/charts
 name: redis
 sources:
-- https://github.com/bitnami/charts/tree/main/bitnami/redis
-version: 23.0.2
+- https://github.com/sommerit/charts/tree/main/sommerit/redis
+version: 23.0.3
