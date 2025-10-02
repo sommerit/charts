@@ -3,6 +3,11 @@ on:
   workflow_run:
     workflows: ['[CI/CD] Release charts to GHCR']
     types: [completed]
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Optional note for manual refresh'
+        required: false
 
 jobs:
   refresh:

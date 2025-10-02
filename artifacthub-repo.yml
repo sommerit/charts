@@ -4,7 +4,7 @@
 # 3) Optionally, set the webhook in Artifact Hub and add its URL/secret as repo secrets
 #    ARTIFACTHUB_WEBHOOK_URL and ARTIFACTHUB_WEBHOOK_SECRET for automatic refresh.
 
-repositoryID: "<SET-YOUR-ARTIFACTHUB-REPOSITORY-ID>"
+repositoryID: "8da24858-ce4f-44e4-a7cc-5cafe45f932d"
 owners:
   - name: sommerit maintainers
     email: "<maintainer@example.com>"
