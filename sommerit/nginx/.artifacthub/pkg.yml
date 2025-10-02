@@ -1,0 +1,16 @@
+displayName: "NGINX"
+name: "nginx"
+version: "22.1.1"
+description: "NGINX OSS web server and reverse proxy Helm chart by Sommerit."
+keywords:
+  - nginx
+  - reverse-proxy
+  - web
+links:
+  - name: Source
+    url: https://github.com/sommerit/charts/tree/main/sommerit/nginx
+  - name: Helm Repository
+    url: https://artifacthub.io/packages/helm/sommerit/nginx
+maintainers:
+  - name: Sommerit Maintainers
+    email: <maintainer@example.com>
