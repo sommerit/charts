@@ -2,23 +2,24 @@
 # SPDX-License-Identifier: APACHE-2.0
 
 # NOTE: This workflow is maintained in the https://github.com/bitnami/support repository
-name: '[Support] Review based card movements'
+name: '[Automation] Label acknowledgment'
 on:
-  pull_request_target:
-    types:
-      - labeled
+  pull_request:
+    types: [labeled]
   issues:
-    types:
-      - labeled
+    types: [labeled]
 permissions:
-  contents: read
-  pull-requests: write
   issues: write
-# Avoid concurrency over the same issue
-concurrency:
-  group: card-movement-${{ github.event.issue != null && github.event.issue.number || github.event.number }}
+  pull-requests: write
 jobs:
-  call-reasign-workflow:
-    if: ${{ github.repository_owner == 'sommerit' }}
-    uses: bitnami/support/.github/workflows/item-labeled.yml@main
-    secrets: inherit
+  comment-label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comment label notice
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const label = context.payload.label?.name;
+            if (!label) return;
+            const issue_number = (context.payload.issue?.number) || (context.payload.pull_request?.number);
+            await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number, body: `Label added: ${label}` });

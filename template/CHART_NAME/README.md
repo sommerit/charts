@@ -10,18 +10,7 @@
 helm install my-release oci://ghcr.io/sommerit/charts/%%CHART_NAME%%
 ```
 
-Looking to use %%CHART_NAME%% in production? Try [VMware Tanzu Application Catalog](https://bitnami.com/enterprise), the commercial edition of the Bitnami catalog.
-
-## ⚠️ Important Notice: Upcoming changes to the Bitnami Catalog
-
-Beginning August 28th, 2025, Bitnami will evolve its public catalog to offer a curated set of hardened, security-focused images under the new [Bitnami Secure Images initiative](https://news.broadcom.com/app-dev/broadcom-introduces-bitnami-secure-images-for-production-ready-containerized-applications). As part of this transition:
-
-- Granting community users access for the first time to security-optimized versions of popular container images.
-- Bitnami will begin deprecating support for non-hardened, Debian-based software images in its free tier and will gradually remove non-latest tags from the public catalog. As a result, community users will have access to a reduced number of hardened images. These images are published only under the “latest” tag and are intended for development purposes
-- Starting August 28th, over two weeks, all existing container images, including older or versioned tags (e.g., 2.50.0, 10.6), will be migrated from the public catalog (docker.io/bitnami) to the “Bitnami Legacy” repository (docker.io/bitnamilegacy), where they will no longer receive updates.
-- For production workloads and long-term support, users are encouraged to adopt Bitnami Secure Images, which include hardened containers, smaller attack surfaces, CVE transparency (via VEX/KEV), SBOMs, and enterprise support.
-
-These changes aim to improve the security posture of all Bitnami users by promoting best practices for software supply chain integrity and up-to-date deployments. For more details, visit the [Bitnami Secure Images announcement](https://github.com/bitnami/containers/issues/83267).
+This chart is community-maintained by Sommerit.
 
 ## Introduction
 
@@ -50,11 +39,9 @@ The command deploys %%CHART_NAME%% on the Kubernetes cluster in the default conf
 
 ## Configuration and installation details
 
-### [Rolling VS Immutable tags](https://docs.vmware.com/en/VMware-Tanzu-Application-Catalog/services/tutorials/GUID-understand-rolling-tags-containers-index.html)
+### Rolling vs Immutable tags
 
-It is strongly recommended to use immutable tags in a production environment. This ensures your deployment does not change automatically if the same tag is updated with a different image.
-
-Bitnami will release a new chart updating its containers if a new version of the main container, significant changes, or critical vulnerabilities exist.
+Use immutable image tags for production to avoid unplanned changes.
 
 ### External database support
 
@@ -192,7 +179,7 @@ The chart can deploy `ServiceMonitor` objects for integration with Prometheus Op
 no matches for kind "ServiceMonitor" in version "monitoring.coreos.com/v1"
 ```
 
-Install the [Sommerit Kube Prometheus helm chart](https://github.com/sommerit/charts/tree/main/sommerit/kube-prometheus) for having the necessary CRDs and the Prometheus Operator.
+Install the [Sommerit Kube Prometheus helm chart](https://github.com/sommerit/charts/tree/main/sommerit/kube-prometheus) for the necessary CRDs and Prometheus Operator.
 
 ### Backup and restore
 
@@ -200,9 +187,7 @@ To back up and restore Helm chart deployments on Kubernetes, you need to back up
 
 ## Persistence
 
-The container image stores the %%CHART_NAME%% data and configurations at the `/bitnami` path of the container. Persistent Volume Claims are used to keep the data across deployments.
-
-If you encounter errors when working with persistent volumes, refer to our [troubleshooting guide for persistent volumes](https://docs.bitnami.com/kubernetes/faq/troubleshooting/troubleshooting-persistence-volumes/).
+Persistent Volume Claims keep data across deployments. Review your selected image’s documentation for default data paths and persistence recommendations.
 
 ## Parameters
 
@@ -220,7 +205,7 @@ helm install my-release \
     oci://REGISTRY_NAME/REPOSITORY_NAME/%%CHART_NAME%%
 ```
 
-> Note: You need to substitute the placeholders `REGISTRY_NAME` and `REPOSITORY_NAME` with a reference to your Helm chart registry and repository. For example, in the case of Bitnami, you need to use `REGISTRY_NAME=registry-1.docker.io` and `REPOSITORY_NAME=bitnamicharts`.
+> Note: You need to substitute the placeholders `REGISTRY_NAME` and `REPOSITORY_NAME` with a reference to your Helm chart registry and repository.
 
 The above command sets the %%CHART_NAME%% administrator account username and password to `admin` and `password` respectively. Additionally, it sets the MariaDB `root` user password to `secretpassword`.
 
@@ -232,12 +217,12 @@ Alternatively, a YAML file that specifies the values for the above parameters ca
 helm install my-release -f values.yaml oci://REGISTRY_NAME/REPOSITORY_NAME/%%CHART_NAME%%
 ```
 
-> Note: You need to substitute the placeholders `REGISTRY_NAME` and `REPOSITORY_NAME` with a reference to your Helm chart registry and repository. For example, in the case of Bitnami, you need to use `REGISTRY_NAME=registry-1.docker.io` and `REPOSITORY_NAME=bitnamicharts`.
-> **Tip**: You can use the default [values.yaml](https://github.com/bitnami/charts/blob/main/template/CHART_NAME/values.yaml)
+> Note: You need to substitute the placeholders `REGISTRY_NAME` and `REPOSITORY_NAME` with a reference to your Helm chart registry and repository.
+> **Tip**: You can use the default [values.yaml](https://github.com/sommerit/charts/blob/main/template/CHART_NAME/values.yaml)
 
 ## Troubleshooting
 
-Find more information about how to deal with common errors related to Bitnami's Helm charts in [this troubleshooting guide](https://docs.bitnami.com/general/how-to/troubleshoot-helm-chart-issues).
+Find more information about Helm in the [official docs](https://helm.sh/docs/).
 
 ## License
 
