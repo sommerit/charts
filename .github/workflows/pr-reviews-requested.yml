@@ -1,20 +1,25 @@
 # Copyright Broadcom, Inc. All Rights Reserved.
 # SPDX-License-Identifier: APACHE-2.0
 
-# NOTE: This workflow is maintained in the https://github.com/bitnami/support repository
-name: '[Support] Review based card movements'
+name: '[Automation] Review requested labeling'
 on:
-  pull_request_target:
-    types:
-      - review_requested
-      - synchronize
+  pull_request:
+    types: [review_requested, synchronize]
 permissions:
-  contents: read
-# Avoid concurrency over the same issue
-concurrency:
-  group: card-movement-${{ github.event.number }}
+  pull-requests: write
 jobs:
-  call-pr-review-workflow:
-    if: ${{ github.repository_owner == 'sommerit' }}
-    uses: bitnami/support/.github/workflows/pr-review-requested-sync.yml@main
-    secrets: inherit
+  label-needs-review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add 'needs-review' label when review requested
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            if (!pr) return;
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number,
+              labels: ['needs-review']
+            });

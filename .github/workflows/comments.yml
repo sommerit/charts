@@ -1,21 +1,34 @@
 # Copyright Broadcom, Inc. All Rights Reserved.
 # SPDX-License-Identifier: APACHE-2.0
 
-# NOTE: This workflow is maintained in the https://github.com/bitnami/support repository
-name: '[Support] Comments based card movements'
+name: '[Automation] Comment commands'
 on:
   issue_comment:
-    types:
-      - created
+    types: [created]
 permissions:
-  contents: read
-  pull-requests: write
   issues: write
-# Avoid concurrency over the same issue
-concurrency:
-  group: card-movement-${{ github.event.issue.number }}
+  pull-requests: write
 jobs:
-  call-comments-workflow:
-    if: ${{ github.repository_owner == 'sommerit' }}
-    uses: bitnami/support/.github/workflows/comment-created.yml@main
-    secrets: inherit
+  handle-commands:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Parse and act on comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = context.payload.comment.body || '';
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const issue_number = context.payload.issue?.number || context.payload.pull_request?.number;
+            if (!issue_number) return;
+            if (/^\/close\b/i.test(body)) {
+              await github.rest.issues.update({owner, repo, issue_number, state: 'closed'});
+            } else if (/^\/reopen\b/i.test(body)) {
+              await github.rest.issues.update({owner, repo, issue_number, state: 'open'});
+            } else {
+              const m = body.match(/^\/label\s+(.+)/i);
+              if (m) {
+                const labels = m[1].split(',').map(s => s.trim()).filter(Boolean);
+                if (labels.length) await github.rest.issues.addLabels({owner, repo, issue_number, labels});
+              }
+            }

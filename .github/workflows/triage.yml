@@ -3,25 +3,28 @@
 
 # This workflow is built to manage the triage support by using GH issues.
 # NOTE: This workflow is maintained in the https://github.com/bitnami/support repository
-name: '[Support] Organize triage'
+name: '[Automation] Triage labels'
 on:
   issues:
-    types:
-      - reopened
-      - opened
-  pull_request_target:
-    types:
-      - reopened
-      - opened
+    types: [opened, reopened]
+  pull_request:
+    types: [opened, reopened]
 permissions:
-  contents: read
-  pull-requests: write
   issues: write
-# Avoid concurrency over the same issue
-concurrency:
-  group: card-movement-${{ github.event.issue != null && github.event.issue.number || github.event.number }}
+  pull-requests: write
 jobs:
-  call-triage-workflow:
-    if: ${{ github.repository_owner == 'sommerit' }}
-    uses: bitnami/support/.github/workflows/item-opened.yml@main
-    secrets: inherit
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Label new issues
+        if: ${{ github.event_name == 'issues' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.addLabels({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.payload.issue.number, labels: ['triage'] });
+      - name: Label new PRs
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.addLabels({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.payload.pull_request.number, labels: ['triage'] });
