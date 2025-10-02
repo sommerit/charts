@@ -58,5 +58,4 @@ Notice the `Author` and `Signed-off-by` lines match. If they don't your PR will 
 
 - A chart's `README.md` must include configuration options. The tables of parameters are generated based on the metadata information from the `values.yaml` file, by using [this tool](https://github.com/bitnami/readme-generator-for-helm).
 - A chart's `NOTES.txt` must include relevant post-installation information.
-- The title of the PR starts with chart name (e.g. `[bitnami/chart]`)
-
+- The title of the PR starts with chart name (e.g. `[sommerit/chart]`)

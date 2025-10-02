@@ -37,5 +37,5 @@
 
 - [ ] Chart version bumped in `Chart.yaml` according to [semver](http://semver.org/). This is *not necessary* when the changes only affect README.md files.
 - [ ] Variables are documented in the values.yaml and added to the `README.md` using [readme-generator-for-helm](https://github.com/bitnami/readme-generator-for-helm)
-- [ ] Title of the pull request follows this pattern [bitnami/<name_of_the_chart>] Descriptive title
-- [ ] All commits signed off and in agreement of [Developer Certificate of Origin (DCO)](https://github.com/bitnami/charts/blob/main/CONTRIBUTING.md#sign-your-work)
+- [ ] Title of the pull request follows this pattern [sommerit/<name_of_the_chart>] Descriptive title
+- [ ] All commits signed off and in agreement of [Developer Certificate of Origin (DCO)](https://github.com/sommerit/charts/blob/main/CONTRIBUTING.md#sign-your-work)

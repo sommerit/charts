@@ -11,7 +11,7 @@ on: # rebuild any PRs and main branch changes
       - labeled
     branches:
       - main
-      - bitnami:main
+      - sommerit:main
 # Remove all permissions by default
 permissions: {}
 # Avoid concurrency over the same PR
@@ -39,10 +39,10 @@ jobs:
           files_changed_data="$(gh api --paginate "/repos/${GITHUB_REPOSITORY}/pulls/${PULL_REQUEST_NUMBER}/files")"
           files_changed="$(echo "$files_changed_data" | jq -r '.[] | .filename')"
           # Adding || true to avoid "Process exited with code 1" errors
-          charts_dirs_changed="$(echo "$files_changed" | xargs dirname | grep -o "bitnami/[^/]*" | sort | uniq || true)"
+          charts_dirs_changed="$(echo "$files_changed" | xargs dirname | grep -o "sommerit/[^/]*" | sort | uniq || true)"
           # Using grep -c as a better alternative to wc -l when dealing with empty strings."
-          num_charts_changed="$(echo "$charts_dirs_changed" | grep -c "bitnami" || true)"
-          num_version_bumps="$(echo "$files_changed_data" | jq -r '[.[] | select(.filename|match("bitnami/[^/]+/Chart.yaml")) | select(.patch|contains("+version")) ] | length' )"
+          num_charts_changed="$(echo "$charts_dirs_changed" | grep -c "sommerit" || true)"
+          num_version_bumps="$(echo "$files_changed_data" | jq -r '[.[] | select(.filename|match("sommerit/[^/]+/Chart.yaml")) | select(.patch|contains("+version")) ] | length' )"
           non_readme_files=$(echo "$files_changed" | grep -vc "\.md" || true)
 
           if [[ $(curl -Lks "${PULL_REQUEST_URL}" | jq '.state | index("closed")') != *null* ]]; then
@@ -60,15 +60,15 @@ jobs:
             # Changes done in only one chart -> OK
             echo "result=ok" >> "$GITHUB_OUTPUT"
             # Extra output: chart name
-            chart_name="${charts_dirs_changed//bitnami\/}"
+            chart_name="${charts_dirs_changed//sommerit\/}"
             echo "chart=${chart_name}" >> "$GITHUB_OUTPUT"
             # Extra output: values-updated
             # shellcheck disable=SC2076
-            if [[ "${files_changed[*]}" =~ "bitnami/${chart_name}/values.yaml" ]]; then
+            if [[ "${files_changed[*]}" =~ "sommerit/${chart_name}/values.yaml" ]]; then
               echo "values-updated=true" >> "$GITHUB_OUTPUT"
             fi
           elif [[ "$num_charts_changed" -le "0" ]]; then
-            # Changes done in the bitnami/ folder but not inside a chart subfolder -> SKIP
+            # Changes done in the sommerit/ folder but not inside a chart subfolder -> SKIP
             echo "error=No changes detected in charts. The rest of the tests will be skipped." >> "$GITHUB_OUTPUT"
             echo "result=skip" >> "$GITHUB_OUTPUT"
           else
@@ -96,7 +96,7 @@ jobs:
     name: Look for hardcoded images
     if: needs.get-chart.outputs.result == 'ok'
     steps:
-      - name: Checkout bitnami/charts
+      - name: Checkout sommerit/charts
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
         with:
           path: charts
@@ -112,7 +112,7 @@ jobs:
             if [[ -n "$image" && $image != {{*}} ]]; then
               hardcoded_images+=("${image}")
             fi
-          done <<< "$(grep --exclude "NOTES.txt" -REoh "\s*image:\s+[\"']*.+[\"']*\s*$" "bitnami/${CHART}/templates" | sed "s/image: [\"']*//" | sed "s/[\"']*$//")"
+          done <<< "$(grep --exclude "NOTES.txt" -REoh "\s*image:\s+[\"']*.+[\"']*\s*$" "sommerit/${CHART}/templates" | sed "s/image: [\"']*//" | sed "s/[\"']*$//")"
           echo "${hardcoded_images[@]}"
           if [[ ${#hardcoded_images[@]} -gt 0 ]] ; then
             echo "error=Found hardcoded images in the chart templates: ${hardcoded_images[*]}"
@@ -126,8 +126,8 @@ jobs:
           cd "${GITHUB_WORKSPACE}/charts" || exit 1
 
           if [[ "$CHART" != "common" && "$CHART" != "fluentd" ]]; then
-            readarray -t tag_paths < <(yq e '.. | (path | join("."))' "bitnami/${CHART}/values.yaml" | grep -E '\.tag$' | sed 's/.tag$//g' | sort -u)
-            readarray -t registry_paths < <(yq e '.. | (path | join("."))' "bitnami/${CHART}/values.yaml" | grep '\.registry$' | sed 's/.registry$//g' | sort -u)
+            readarray -t tag_paths < <(yq e '.. | (path | join("."))' "sommerit/${CHART}/values.yaml" | grep -E '\.tag$' | sed 's/.tag$//g' | sort -u)
+            readarray -t registry_paths < <(yq e '.. | (path | join("."))' "sommerit/${CHART}/values.yaml" | grep '\.registry$' | sed 's/.registry$//g' | sort -u)
 
             # We assume that image objects are those that contain both keys 'tag' and 'registry'
             images_paths=()
@@ -138,7 +138,7 @@ jobs:
             done
 
             # Get the images defined in the image warning helper
-            readarray -d ' ' -t images_list_tmp < <(grep -E 'common.warnings.modifiedImages' "bitnami/${CHART}/templates/NOTES.txt" | sed -E 's/.*\(list (.+)\) "context".*/\1/' | sed 's/.Values.//g')
+            readarray -d ' ' -t images_list_tmp < <(grep -E 'common.warnings.modifiedImages' "sommerit/${CHART}/templates/NOTES.txt" | sed -E 's/.*\(list (.+)\) "context".*/\1/' | sed 's/.Values.//g')
 
             # Remove any empty element from the array
             images_list=()
@@ -171,22 +171,22 @@ jobs:
       result: ${{ steps.update-pr.outputs.result }}
     if: needs.get-chart.outputs.result == 'ok'
     steps:
-      - name: Checkout bitnami/charts
+      - name: Checkout sommerit/charts
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
         with:
           ref: ${{github.event.pull_request.head.ref}}
           repository: ${{github.event.pull_request.head.repo.full_name}}
-          token: ${{ secrets.BITNAMI_BOT_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           path: charts
-      - name: Clone upstream bitnami/charts repository
+      - name: Clone upstream sommerit/charts repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
         with:
           path: upstream-charts
       - name: Setup git configuration
         run: |
           cd $GITHUB_WORKSPACE/charts
-          git config user.name "Bitnami Bot"
-          git config user.email "bitnami.bot@broadcom.com"
+          git config user.name "Sommerit Bot"
+          git config user.email "bot@users.noreply.github.com"
       # In order to avoid doing a full clone (which would fetch the index branch), we
       # unshallow the clone only using the main branch. We need to get the tags to
       # regenerate the changelog too
@@ -210,11 +210,11 @@ jobs:
           # Get PR title using the API to avoid malicious string substitutions
           pr_title="$(gh api "/repos/${GITHUB_REPOSITORY}/pulls/${PULL_REQUEST_NUMBER}" | jq -r '.title')"
           # The generator needs the file to exist
-          chart_version="$(yq e '.version' "${GITHUB_WORKSPACE}/charts/bitnami/${CHART}/Chart.yaml")"
-          changelog_file="${GITHUB_WORKSPACE}/charts/bitnami/${CHART}/CHANGELOG.md"
-          changelog_tmp="${GITHUB_WORKSPACE}/charts/bitnami/${CHART}/CHANGELOG.md.tmp"
+          chart_version="$(yq e '.version' "${GITHUB_WORKSPACE}/charts/sommerit/${CHART}/Chart.yaml")"
+          changelog_file="${GITHUB_WORKSPACE}/charts/sommerit/${CHART}/CHANGELOG.md"
+          changelog_tmp="${GITHUB_WORKSPACE}/charts/sommerit/${CHART}/CHANGELOG.md.tmp"
           touch "$changelog_file"
-          npx conventional-changelog-cli -i "$changelog_file" -s -t "${CHART}/" -r 0 --commit-path "bitnami/${CHART}"
+          npx conventional-changelog-cli -i "$changelog_file" -s -t "${CHART}/" -r 0 --commit-path "sommerit/${CHART}"
           # The tool uses short sha to generate commit links. Sometimes, Github does not offer links with the short sha, so we change all commit links to use the full sha instead
           for short_sha in $(grep -Eo "/commit/[a-z0-9]+" "$changelog_file" | awk -F/ '{print $3}'); do
             long_sha="$(git rev-list @ | grep "^$short_sha" | head -n 1)";
@@ -236,8 +236,8 @@ jobs:
           rm "$changelog_tmp"
 
           # Commit all changes, if any
-          if git status -s | grep "bitnami/${CHART}/CHANGELOG.md"; then
-            git add "bitnami/${CHART}/CHANGELOG.md"
+          if git status -s | grep "sommerit/${CHART}/CHANGELOG.md"; then
+            git add "sommerit/${CHART}/CHANGELOG.md"
             git commit -m "Update CHANGELOG.md" --signoff
           fi
       - name: Install readme-generator-for-helm
@@ -252,14 +252,14 @@ jobs:
           exit_code=0
           cd "${GITHUB_WORKSPACE}/charts" || exit 1
 
-          echo "Validating README.md for bitnami/${CHART}"
+          echo "Validating README.md for sommerit/${CHART}"
 
           # Validating *.registry parameters
           while read -r line; do
             echo "$line" | grep --quiet "\[default: \(REGISTRY_NAME\|\"\"\)\]" || exit_code=$?
-          done < <(grep "@param\s\+[A-Za-z\.]\+\.registry\s\+" "bitnami/${CHART}/values.yaml")
+          done < <(grep "@param\s\+[A-Za-z\.]\+\.registry\s\+" "sommerit/${CHART}/values.yaml")
           if [[ $exit_code -ne 0 ]]; then
-            echo "error=Please ensure all *.registry params include the [default: REGISTRY_NAME] modifier in the chart bitnami/${CHART}/values.yaml file"
+            echo "error=Please ensure all *.registry params include the [default: REGISTRY_NAME] modifier in the chart sommerit/${CHART}/values.yaml file"
             exit "$exit_code"
           fi
 
@@ -268,25 +268,25 @@ jobs:
             param=$(echo "$line" | awk '{print $3}')
             # Checking if it's a image's registry-related param
             registry_param="${param//.repository/.registry}"
-            grep --quiet "@param\s\+${registry_param}" "bitnami/${CHART}/values.yaml" && ( echo "$line" | grep --quiet "\[default: \(REPOSITORY_NAME/.*\|\"\"\)\]" || exit_code=$? )
-          done < <(grep "@param\s\+[A-Za-z\.]\+\.repository\s\+" "bitnami/${CHART}/values.yaml")
+            grep --quiet "@param\s\+${registry_param}" "sommerit/${CHART}/values.yaml" && ( echo "$line" | grep --quiet "\[default: \(REPOSITORY_NAME/.*\|\"\"\)\]" || exit_code=$? )
+          done < <(grep "@param\s\+[A-Za-z\.]\+\.repository\s\+" "sommerit/${CHART}/values.yaml")
           if [[ $exit_code -ne 0 ]]; then
-            echo "error=Please ensure all *.repository params include the [default: REPOSITORY_NAME] modifier the in the chart bitnami/${CHART}/values.yaml file"
+            echo "error=Please ensure all *.repository params include the [default: REPOSITORY_NAME] modifier the in the chart sommerit/${CHART}/values.yaml file"
             exit "$exit_code"
           fi
 
           # Validating *.tag parameters
-          grep -v --quiet "@param\s\+[A-Za-z\.]\+\.tag\s\+" "bitnami/${CHART}/values.yaml" || exit_code=$?
+          grep -v --quiet "@param\s\+[A-Za-z\.]\+\.tag\s\+" "sommerit/${CHART}/values.yaml" || exit_code=$?
           if [[ $exit_code -ne 0 ]]; then
-            echo "error=Please ensure all *.tag params are skipped (@skip) in the bitnami/${CHART}/values.yaml file"
+            echo "error=Please ensure all *.tag params are skipped (@skip) in the sommerit/${CHART}/values.yaml file"
             exit "$exit_code"
           fi
-          echo "Updating README.md for bitnami/${CHART}"
-          readme-generator --values "bitnami/${CHART}/values.yaml" --readme "bitnami/${CHART}/README.md" --schema "/tmp/schema.json"
+          echo "Updating README.md for sommerit/${CHART}"
+          readme-generator --values "sommerit/${CHART}/values.yaml" --readme "sommerit/${CHART}/README.md" --schema "/tmp/schema.json"
 
           # Commit all changes, if any
-          if git status -s | grep "bitnami/${CHART}"; then
-            git add "bitnami/${CHART}"
+          if git status -s | grep "sommerit/${CHART}"; then
+            git add "sommerit/${CHART}"
             git commit -m "Update README.md with readme-generator-for-helm" --signoff
           fi
       - id: update-pr
